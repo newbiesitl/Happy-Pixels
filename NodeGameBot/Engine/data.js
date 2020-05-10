@@ -45,7 +45,7 @@ let beginDataProcessing = () => {
     let configuringNewDataMapCoords = false
 
     // Variable names that will be stored in the info object
-    let xcoord, ycoord, direction, needWater, needFood, needManaGem, targetIsDead, target, targetInCombat, playerInCombat, health, healtlhMax, healthCurrent, mana, manaMax, manaCurrent, level, range, gold, targetFrozen, targetHealth
+    let xcoord, ycoord, direction, needWater, needFood, needManaGem, targetIsDead, target, targetInCombat, playerInCombat, health, healtlhMax, healthCurrent, mana, manaMax, manaCurrent, level, range, gold, targetFrozen, targetHealth, targetHealthMax
     let deadStatus, talentPoints, skinning, gossipWindowOpen, itemsAreBroken, bagIsFull, bindingWindowOpen, metaData, zone, flying, frameCols, dataWidth, gossipOptions, corpseX, corpseY, fishing, gameTime, playerClass, unskinnable,
         hearthZone, targetOfTargetIsPlayer, processExitStatus, bitmask
 
@@ -131,6 +131,7 @@ let beginDataProcessing = () => {
             corpseY: corpseY,
             playerClass: playerClass,
             targetHealth: targetHealth,
+            targetHealthMax: targetHealthMax,
             flying: flying,
             hearthZone: hearthZone,
             targetOfTargetIsPlayer: targetOfTargetIsPlayer,
@@ -214,6 +215,7 @@ let beginDataProcessing = () => {
         target = reader.getStringAtCell(f[16]) + (reader.getStringAtCell(f[17]))
         // Targets current percentage of health
         targetHealth = (reader.getIntAtCell(f[19]))
+        targetHealthMax = (reader.getIntAtCell(f[18]))
         // Gold is the amount of money that we currently have in coppers
         // First pixel position of items
         let itemDataStart = 20
@@ -432,18 +434,25 @@ const axios = require('axios')
 // Used for testing purposes only. Uncomment to see the console print your values.
  setInterval(() => {
     axios
-      .post('http://192.168.1.143/items/', {
+      .post('http://192.168.1.143/state/', {
             name: "test",
             body: JSON.stringify(this.info)
           })
       .then(res => {
         console.log(`statusCode: ${res.status}`)
-//        console.log(res)
       })
       .catch(error => {
         console.error(error)
       })
-//         console.log("xcoord:", this.info.xcoord)
-//         console.log("ycoord:", this.info.ycoord)
-//         console.log("direction:", this.info.direction)
+     axios
+      .post('http://localhost/action/', {
+            name: "test",
+            body: JSON.stringify(this.info)
+          })
+      .then(res => {
+        console.log(`statusCode: ${res.status}`)
+      })
+      .catch(error => {
+        console.error(error)
+      })
  }, 100)
