@@ -437,7 +437,7 @@ const axios = require('axios')
             body: JSON.stringify(this.info)
           })
       .then(res => {
-        console.log(`statusCode: ${res.statusCode}`)
+        console.log(`statusCode: ${res.status}`)
 //        console.log(res)
       })
       .catch(error => {
