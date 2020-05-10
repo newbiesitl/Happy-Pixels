@@ -409,9 +409,41 @@ if (!fs.existsSync(path.resolve(__basedir, './Database/lib/frameCoordinates.json
     beginDataProcessing()
 }
 
+
+
+
+
+
+
+
+const axios = require('axios')
+
+
+
+
+
+
+
+
+
+
+
+
 // Used for testing purposes only. Uncomment to see the console print your values.
-// setInterval(() => {
+ setInterval(() => {
+    axios
+      .post('http://192.168.1.143/items/', {
+            name: "test",
+            body: JSON.stringify(this.info)
+          })
+      .then(res => {
+        console.log(`statusCode: ${res.statusCode}`)
+//        console.log(res)
+      })
+      .catch(error => {
+        console.error(error)
+      })
 //         console.log("xcoord:", this.info.xcoord)
 //         console.log("ycoord:", this.info.ycoord)
 //         console.log("direction:", this.info.direction)
-// }, 100)
+ }, 100)
