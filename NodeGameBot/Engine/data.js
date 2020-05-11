@@ -52,7 +52,8 @@ let beginDataProcessing = () => {
         zone, flying, frameCols, dataWidth, gossipOptions, corpseX, corpseY, fishing, gameTime, playerClass, unskinnable,
         hearthZone, targetOfTargetIsPlayer, processExitStatus, bitmask
     // Druid related
-    let RejuvenationActive
+    let party1_RejuvenationActive, party2_RejuvenationActive, party3_RejuvenationActive, party4_RejuvenationActive
+    let party1_Regrowth, party2_Regrowth, party3_Regrowth, party4_Regrowth
     // party related
     let party1_current_health, party1_max_health, party2_current_health, party2_max_health, party3_max_health,
         party3_current_health, party4_max_health, party4_current_health
@@ -145,7 +146,6 @@ let beginDataProcessing = () => {
             hearthZone: hearthZone,
             targetOfTargetIsPlayer: targetOfTargetIsPlayer,
             bitmask: bitmask,
-            RejuvenationActive: RejuvenationActive,
             party1_current_health: party1_current_health,
             party1_max_health: party1_max_health,
             party2_current_health: party2_current_health,
@@ -153,7 +153,15 @@ let beginDataProcessing = () => {
             party3_current_health: party3_current_health,
             party3_max_health: party3_max_health,
             party4_current_health: party4_current_health,
-            party4_max_health: party4_max_health
+            party4_max_health: party4_max_health,
+            party1_RejuvenationActive: party1_RejuvenationActive,
+            party2_RejuvenationActive: party2_RejuvenationActive,
+            party3_RejuvenationActive: party3_RejuvenationActive,
+            party4_RejuvenationActive: party4_RejuvenationActive,
+            party1_Regrowth: party1_Regrowth,
+            party2_Regrowth: party2_Regrowth,
+            party3_Regrowth: party3_Regrowth,
+            party4_Regrowth: party4_Regrowth
         }
         // If you don't set a time on your interval, it will run as fast as possible
     })
@@ -295,16 +303,23 @@ let beginDataProcessing = () => {
         // Returns 1 if our target is unskinnable (Therefore returns 1 if we have no target). Else returns 0
         unskinnable = (reader.getIntAtCell(f[47]) !== 0)
         hearthZone = reader.getIntAtCell(f[48])
-        RejuvenationActive = reader.getIntAtCell(f[49]) // is Rejuvenation on target
 
         party1_max_health = reader.getIntAtCell(f[50])
         party1_current_health = reader.getIntAtCell(f[51]) // party 1 max health
-        party2_max_health = reader.getIntAtCell(f[52])
-        party2_current_health = reader.getIntAtCell(f[53]) // party 2 max health
-        party3_max_health = reader.getIntAtCell(f[54])
-        party3_current_health = reader.getIntAtCell(f[55]) // party 3 max health
-        party4_max_health = reader.getIntAtCell(f[56])
-        party4_current_health = reader.getIntAtCell(f[57]) // party 4 max health
+        party1_RejuvenationActive = reader.getIntAtCell(f[52])
+        party1_Regrowth = reader.getIntAtCell(f[53])
+        party2_max_health = reader.getIntAtCell(f[54])
+        party2_current_health = reader.getIntAtCell(f[55]) // party 2 max health
+        party2_RejuvenationActive = reader.getIntAtCell(f[56])
+        party2_Regrowth = reader.getIntAtCell(f[57])
+        party3_max_health = reader.getIntAtCell(f[58])
+        party3_current_health = reader.getIntAtCell(f[59]) // party 3 max health
+        party3_RejuvenationActive = reader.getIntAtCell(f[60])
+        party3_Regrowth = reader.getIntAtCell(f[61])
+        party4_max_health = reader.getIntAtCell(f[62])
+        party4_current_health = reader.getIntAtCell(f[63]) // party 4 max health
+        party4_RejuvenationActive = reader.getIntAtCell(f[64])
+        party4_Regrowth = reader.getIntAtCell(f[65])
         // Exits node process if command is triggered
         processExitStatus && ALLOW_PROCESS_EXIT_TRIGGER ? process.exit() : false
     });

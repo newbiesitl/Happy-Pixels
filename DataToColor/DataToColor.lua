@@ -324,18 +324,18 @@ function DataToColor:CreateFrames(n)
             MakePixelSquareArr(integerToColor(self:PlayerClass()), 46) -- Returns player class as an integer
             MakePixelSquareArr(integerToColor(self:isUnskinnable()), 47) -- Returns 1 if creature is unskinnable
             MakePixelSquareArr(integerToColor(self:hearthZoneID()), 48) -- Returns subzone of that is currently bound to hearhtstone
-            -- Druid class related data
-            MakePixelSquareArr(integerToColor(self:GetTargetBuffs("Rejuvenation")), 49) -- Returns the status of
             -- scan part status here
             -- candidate 1 TargetNearestPartyMember()
             -- candidate 2 unitID - raidN / partyN
-            MakePixelSquareArr(integerToColor(self:getHealthMax("party1")), 50) -- Return the maximum amount of health a target can have
-            MakePixelSquareArr(integerToColor(self:getHealthCurrent("party1")), 51) -- Returns the current amount of health the target currently has
-
-            --for i = 1, 2-1 do
-            --    MakePixelSquareArr(integerToColor(self:getHealthMax("party"..tostring(i))), 49+i) -- Return the maximum amount of health a target can have
-            --    MakePixelSquareArr(integerToColor(self:getHealthCurrent("party"..tostring(i))), 49+i*2) -- Returns the current amount of health the target currently has
-            --end
+            tail_idx = 50
+            num_t = 4
+            for i = 0, MAX_PARTY_MEMBERS do
+                MakePixelSquareArr(integerToColor(self:getHealthMax("party"..tostring(i+1))), tail_idx+i*num_t) -- Return the maximum amount of health a target can have
+                MakePixelSquareArr(integerToColor(self:getHealthCurrent("party"..tostring(i+1))), tail_idx+i*num_t+1) -- Returns the current amount of health the target currently has
+                MakePixelSquareArr(integerToColor(self:GetPartyBuffs("party"..tostring(i+1),"Rejuvenation")), tail_idx+i*num_t+2) -- Returns the status of
+                MakePixelSquareArr(integerToColor(self:GetPartyBuffs("party"..tostring(i+1),"Regrowth")), tail_idx+i*num_t+3) -- Returns the status of
+            end
+            tail_idx = tail_idx + MAX_PARTY_MEMBERS*num_t+3
             self:HandleEvents()
         end
         if SETUP_SEQUENCE then
@@ -805,6 +805,18 @@ end
 function DataToColor:GetTargetBuffs(buff)
     for i = 1, 10 do
         local b = UnitBuff("target", i);
+        if b ~= nil then
+            if string.find(b, buff) then
+                return 1
+            end
+        end
+    end
+    return 0
+end
+
+function DataToColor:GetPartyBuffs(unitID,buff)
+    for i = 1, 10 do
+        local b = UnitBuff(unitID, i);
         if b ~= nil then
             if string.find(b, buff) then
                 return 1
