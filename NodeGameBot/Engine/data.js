@@ -55,8 +55,10 @@ let beginDataProcessing = () => {
     let party1_RejuvenationActive, party2_RejuvenationActive, party3_RejuvenationActive, party4_RejuvenationActive
     let party1_Regrowth, party2_Regrowth, party3_Regrowth, party4_Regrowth
     // party related
-    let party1_current_health, party1_max_health, party2_current_health, party2_max_health, party3_max_health,
-        party3_current_health, party4_max_health, party4_current_health
+    let party1_current_health, party1_max_health, is_party1_within_40_yard,
+        party2_current_health, party2_max_health, is_party2_within_40_yard,
+        party3_max_health, party3_current_health, is_party3_within_40_yard,
+        party4_max_health, party4_current_health, is_party4_within_40_yard
 
 
     let spell = {
@@ -147,13 +149,17 @@ let beginDataProcessing = () => {
             targetOfTargetIsPlayer: targetOfTargetIsPlayer,
             bitmask: bitmask,
             party1_current_health: party1_current_health,
-            party1_max_health: party1_max_health,
             party2_current_health: party2_current_health,
-            party2_max_health: party2_max_health,
             party3_current_health: party3_current_health,
-            party3_max_health: party3_max_health,
             party4_current_health: party4_current_health,
+            party1_max_health: party1_max_health,
+            party2_max_health: party2_max_health,
+            party3_max_health: party3_max_health,
             party4_max_health: party4_max_health,
+            is_party1_within_40_yard: is_party1_within_40_yard,
+            is_party2_within_40_yard: is_party2_within_40_yard,
+            is_party3_within_40_yard: is_party3_within_40_yard,
+            is_party4_within_40_yard: is_party4_within_40_yard,
             party1_RejuvenationActive: party1_RejuvenationActive,
             party2_RejuvenationActive: party2_RejuvenationActive,
             party3_RejuvenationActive: party3_RejuvenationActive,
@@ -304,22 +310,47 @@ let beginDataProcessing = () => {
         unskinnable = (reader.getIntAtCell(f[47]) !== 0)
         hearthZone = reader.getIntAtCell(f[48])
 
-        party1_max_health = reader.getIntAtCell(f[50])
-        party1_current_health = reader.getIntAtCell(f[51]) // party 1 max health
-        party1_RejuvenationActive = reader.getIntAtCell(f[52])
-        party1_Regrowth = reader.getIntAtCell(f[53])
-        party2_max_health = reader.getIntAtCell(f[54])
-        party2_current_health = reader.getIntAtCell(f[55]) // party 2 max health
-        party2_RejuvenationActive = reader.getIntAtCell(f[56])
-        party2_Regrowth = reader.getIntAtCell(f[57])
-        party3_max_health = reader.getIntAtCell(f[58])
-        party3_current_health = reader.getIntAtCell(f[59]) // party 3 max health
-        party3_RejuvenationActive = reader.getIntAtCell(f[60])
-        party3_Regrowth = reader.getIntAtCell(f[61])
-        party4_max_health = reader.getIntAtCell(f[62])
-        party4_current_health = reader.getIntAtCell(f[63]) // party 4 max health
-        party4_RejuvenationActive = reader.getIntAtCell(f[64])
-        party4_Regrowth = reader.getIntAtCell(f[65])
+        party_index = 49
+        party_index = party_index + 1
+        party1_max_health = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party1_current_health = reader.getIntAtCell(f[party_index]) // party 1 max health
+        party_index = party_index + 1
+        party1_RejuvenationActive = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party1_Regrowth = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        is_party1_within_40_yard = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party2_max_health = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party2_current_health = reader.getIntAtCell(f[party_index]) // party 2 max health
+        party_index = party_index + 1
+        party2_RejuvenationActive = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party2_Regrowth = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        is_party2_within_40_yard = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party3_max_health = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party3_current_health = reader.getIntAtCell(f[party_index]) // party 3 max health
+        party_index = party_index + 1
+        party3_RejuvenationActive = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party3_Regrowth = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        is_party3_within_40_yard = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party4_max_health = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party4_current_health = reader.getIntAtCell(f[party_index]) // party 4 max health
+        party_index = party_index + 1
+        party4_RejuvenationActive = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        party4_Regrowth = reader.getIntAtCell(f[party_index])
+        party_index = party_index + 1
+        is_party4_within_40_yard = reader.getIntAtCell(f[party_index])
         // Exits node process if command is triggered
         processExitStatus && ALLOW_PROCESS_EXIT_TRIGGER ? process.exit() : false
     });
@@ -489,15 +520,15 @@ const axios = require('axios')
         console.error(error)
       })
      // send data to controller
-//     axios
-//      .post('http://localhost/action/', {
-//            name: "test",
-//            body: JSON.stringify(this.info)
-//          })
-//      .then(res => {
-//        console.log(`statusCode: ${res.status}`)
-//      })
-//      .catch(error => {
-//        console.error(error)
-//      })
+     axios
+      .post('http://localhost/action/', {
+            name: "test",
+            body: JSON.stringify(this.info)
+          })
+      .then(res => {
+        console.log(`statusCode: ${res.status}`)
+      })
+      .catch(error => {
+        console.error(error)
+      })
  }, 300)

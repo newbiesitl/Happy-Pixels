@@ -328,12 +328,13 @@ function DataToColor:CreateFrames(n)
             -- candidate 1 TargetNearestPartyMember()
             -- candidate 2 unitID - raidN / partyN
             tail_idx = 50
-            num_t = 4
+            num_t = 5
             for i = 0, MAX_PARTY_MEMBERS do
                 MakePixelSquareArr(integerToColor(self:getHealthMax("party"..tostring(i+1))), tail_idx+i*num_t) -- Return the maximum amount of health a target can have
                 MakePixelSquareArr(integerToColor(self:getHealthCurrent("party"..tostring(i+1))), tail_idx+i*num_t+1) -- Returns the current amount of health the target currently has
                 MakePixelSquareArr(integerToColor(self:GetPartyBuffs("party"..tostring(i+1),"Rejuvenation")), tail_idx+i*num_t+2) -- Returns the status of
                 MakePixelSquareArr(integerToColor(self:GetPartyBuffs("party"..tostring(i+1),"Regrowth")), tail_idx+i*num_t+3) -- Returns the status of
+                MakePixelSquareArr(integerToColor(self:isUnitInRange("party"..tostring(i+1))), tail_idx+i*num_t+4) -- Returns the status of
             end
             tail_idx = tail_idx + MAX_PARTY_MEMBERS*num_t+3
             self:HandleEvents()
@@ -460,6 +461,22 @@ function DataToColor:GetTargetName(partition)
     return 0
 end
 
+local mas = {
+	'follow123',
+    'standby123',
+}
+function DataToColor:HookKeyward()
+    msg = msg:lower()
+    for key_word in pairs(mas) do
+        if msg:match(key_word) then
+            -- the message contains this keyword
+            return 1
+        end
+    end
+    return 0
+end
+
+
 function DataToColor:getPartyMember(unit)
     local is_exist =  GetPartyMember(unit)
     return is_exist
@@ -510,6 +527,15 @@ function DataToColor:isInRange()
     if IsActionInRange(4) then range = 20 end -- Checks Fire Blast Range, slot 4
     return range
 end
+
+function DataToColor:isUnitInRange(unitID)
+    if UnitInRange(unitID) then
+        return 1
+    else
+        return 0
+    end
+end
+
 
 -- A function used to check which items we have.
 -- Find item IDs on wowhead in the url: e.g: http://www.wowhead.com/item=5571/small-black-pouch. Best to confirm ingame if possible, though.
