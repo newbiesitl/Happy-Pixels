@@ -52,6 +52,7 @@ let beginDataProcessing = () => {
         zone, flying, frameCols, dataWidth, gossipOptions, corpseX, corpseY, fishing, gameTime, playerClass, unskinnable,
         hearthZone, targetOfTargetIsPlayer, processExitStatus, bitmask
     // Druid related
+    let player_RejuvenationActive, player_Regrowth
     let party1_RejuvenationActive, party2_RejuvenationActive, party3_RejuvenationActive, party4_RejuvenationActive
     let party1_Regrowth, party2_Regrowth, party3_Regrowth, party4_Regrowth
     // party related
@@ -171,6 +172,8 @@ let beginDataProcessing = () => {
             party2_Regrowth: party2_Regrowth,
             party3_Regrowth: party3_Regrowth,
             party4_Regrowth: party4_Regrowth,
+            player_RejuvenationActive: player_RejuvenationActive,
+            player_Regrowth: player_Regrowth,
             follow_hook: follow_hook,
             standby_hook: standby_hook
         }
@@ -314,9 +317,11 @@ let beginDataProcessing = () => {
         // Returns 1 if our target is unskinnable (Therefore returns 1 if we have no target). Else returns 0
         unskinnable = (reader.getIntAtCell(f[47]) !== 0)
         hearthZone = reader.getIntAtCell(f[48])
+        player_RejuvenationActive = reader.getIntAtCell(f[49])
+        player_Regrowth = reader.getIntAtCell(f[50])
 
-        party_index = 49
-        party_index = party_index + 1
+
+        party_index = 60
         party1_max_health = reader.getIntAtCell(f[party_index])
         party_index = party_index + 1
         party1_current_health = reader.getIntAtCell(f[party_index]) // party 1 max health

@@ -222,9 +222,11 @@ chat_frame:SetScript("OnEvent", function(self, event, ...)
     local message = arg1
     if message == "follow123" then
         follow_commend_received = 1
+        standby_commend_received = 0
         print("follow command received");-- Send "hi" back through /say
     end
     if message == "standby123" then
+        follow_commend_received = 0
         standby_commend_received = 1
         print("standby command received");-- Send "hi" back through /say
     end
@@ -349,10 +351,12 @@ function DataToColor:CreateFrames(n)
             MakePixelSquareArr(integerToColor(self:PlayerClass()), 46) -- Returns player class as an integer
             MakePixelSquareArr(integerToColor(self:isUnskinnable()), 47) -- Returns 1 if creature is unskinnable
             MakePixelSquareArr(integerToColor(self:hearthZoneID()), 48) -- Returns subzone of that is currently bound to hearhtstone
+            MakePixelSquareArr(integerToColor(self:GetPartyBuffs("player","Rejuvenation")), 49) -- Returns the status of
+            MakePixelSquareArr(integerToColor(self:GetPartyBuffs("player","Regrowth")), 50) -- Returns the status of
             -- scan part status here
             -- candidate 1 TargetNearestPartyMember()
             -- candidate 2 unitID - raidN / partyN
-            tail_idx = 50
+            tail_idx = 60
             num_t = 5
             for i = 0, MAX_PARTY_MEMBERS do
                 MakePixelSquareArr(integerToColor(self:getHealthMax("party"..tostring(i+1))), tail_idx+i*num_t) -- Return the maximum amount of health a target can have
