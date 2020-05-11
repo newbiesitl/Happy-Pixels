@@ -9,6 +9,7 @@ const AUTO_TOGGLE_DATATOCOLOR = false
 exports.configureDataCoords = (metaData, override) => {
     if (override) {
         metaData = parseInt(robot.getPixelColor(1, 1), 16)
+        console.log(metaData)
     }
     // console.log(data.info)
     return new Promise((resolve, reject) => {

@@ -45,9 +45,18 @@ let beginDataProcessing = () => {
     let configuringNewDataMapCoords = false
 
     // Variable names that will be stored in the info object
-    let xcoord, ycoord, direction, needWater, needFood, needManaGem, targetIsDead, target, targetInCombat, playerInCombat, health, healtlhMax, healthCurrent, mana, manaMax, manaCurrent, level, range, gold, targetFrozen, targetHealth, targetHealthMax
-    let deadStatus, talentPoints, skinning, gossipWindowOpen, itemsAreBroken, bagIsFull, bindingWindowOpen, metaData, zone, flying, frameCols, dataWidth, gossipOptions, corpseX, corpseY, fishing, gameTime, playerClass, unskinnable,
+    let xcoord, ycoord, direction, needWater, needFood, needManaGem, targetIsDead, target, targetInCombat,
+        playerInCombat, health, healtlhMax, healthCurrent, mana, manaMax, manaCurrent, level, range, gold,
+        targetFrozen, targetHealth, targetHealthMax
+    let deadStatus, talentPoints, skinning, gossipWindowOpen, itemsAreBroken, bagIsFull, bindingWindowOpen, metaData,
+        zone, flying, frameCols, dataWidth, gossipOptions, corpseX, corpseY, fishing, gameTime, playerClass, unskinnable,
         hearthZone, targetOfTargetIsPlayer, processExitStatus, bitmask
+    // Druid related
+    let RejuvenationActive
+    // party related
+    let party1_current_health, party1_max_health, party2_current_health, party2_max_health, party3_max_health,
+        party3_current_health, party4_max_health, party4_current_health
+
 
     let spell = {
         melee: {},
@@ -135,7 +144,16 @@ let beginDataProcessing = () => {
             flying: flying,
             hearthZone: hearthZone,
             targetOfTargetIsPlayer: targetOfTargetIsPlayer,
-            bitmask: bitmask
+            bitmask: bitmask,
+            RejuvenationActive: RejuvenationActive,
+            party1_current_health: party1_current_health,
+            party1_max_health: party1_max_health,
+            party2_current_health: party2_current_health,
+            party2_max_health: party2_max_health,
+            party3_current_health: party3_current_health,
+            party3_max_health: party3_max_health,
+            party4_current_health: party4_current_health,
+            party4_max_health: party4_max_health
         }
         // If you don't set a time on your interval, it will run as fast as possible
     })
@@ -277,6 +295,16 @@ let beginDataProcessing = () => {
         // Returns 1 if our target is unskinnable (Therefore returns 1 if we have no target). Else returns 0
         unskinnable = (reader.getIntAtCell(f[47]) !== 0)
         hearthZone = reader.getIntAtCell(f[48])
+        RejuvenationActive = reader.getIntAtCell(f[49]) // is Rejuvenation on target
+
+        party1_max_health = reader.getIntAtCell(f[50])
+        party1_current_health = reader.getIntAtCell(f[51]) // party 1 max health
+        party2_max_health = reader.getIntAtCell(f[52])
+        party2_current_health = reader.getIntAtCell(f[53]) // party 2 max health
+        party3_max_health = reader.getIntAtCell(f[54])
+        party3_current_health = reader.getIntAtCell(f[55]) // party 3 max health
+        party4_max_health = reader.getIntAtCell(f[56])
+        party4_current_health = reader.getIntAtCell(f[57]) // party 4 max health
         // Exits node process if command is triggered
         processExitStatus && ALLOW_PROCESS_EXIT_TRIGGER ? process.exit() : false
     });
@@ -433,6 +461,7 @@ const axios = require('axios')
 
 // Used for testing purposes only. Uncomment to see the console print your values.
  setInterval(() => {
+    // send data to monitor dashboard
     axios
       .post('http://192.168.1.143/state/', {
             name: "test",
@@ -444,15 +473,16 @@ const axios = require('axios')
       .catch(error => {
         console.error(error)
       })
-     axios
-      .post('http://localhost/action/', {
-            name: "test",
-            body: JSON.stringify(this.info)
-          })
-      .then(res => {
-        console.log(`statusCode: ${res.status}`)
-      })
-      .catch(error => {
-        console.error(error)
-      })
- }, 100)
+     // send data to controller
+//     axios
+//      .post('http://localhost/action/', {
+//            name: "test",
+//            body: JSON.stringify(this.info)
+//          })
+//      .then(res => {
+//        console.log(`statusCode: ${res.status}`)
+//      })
+//      .catch(error => {
+//        console.error(error)
+//      })
+ }, 300)

@@ -50,7 +50,9 @@ EXIT_PROCESS_STATUS = 0
 -- Assigns various macros if user changes variable to true
 ASSIGN_MACROS_INITIALIZE = false
 -- Total number of data frames generated
-local NUMBER_OF_FRAMES = 50
+local NUMBER_OF_FRAMES = 90
+local MAX_PARTY_MEMBERS = 5
+local MAX_RAID_MEMBERS = 40
 -- Set number of pixel rows
 local FRAME_ROWS = 1
 -- Size of data squares in px. Varies based on rounding errors as well as dimension size. Use as a guideline, but not 100% accurate.
@@ -74,6 +76,7 @@ local MAIN_MIN = 1
 local MAIN_MAX = 12
 local BOTTOM_LEFT_MIN = 61
 local BOTTOM_LEFT_MAX = 72
+local tail_idx = 0
 
 DataToColor.frames = nil
 DataToColor.r = 0
@@ -219,7 +222,7 @@ function DataToColor:CreateFrames(n)
         -- This is APPROXIMATE MATH. startingFrame is the x start, startingFramey is the "y" start (both starts are in regard to pixel position on the main frame)
         function MakePixelSquareArr(col, slot)
             if type(slot) ~= "number" or slot < 0 or slot >= NUMBER_OF_FRAMES then
-                self:error("Invalid slot value")
+                self:error("Invalid slot value" .. tostring(slot))
             end
             
             if type(col) ~= "table" then
@@ -230,7 +233,7 @@ function DataToColor:CreateFrames(n)
         end
         -- Number of loops is based on the number of generated frames declared at beginning of script
         
-        for i = 1, 46 do
+        for i = 1, NUMBER_OF_FRAMES-1 do
             MakePixelSquareArr({63 / 255, 0, 63 / 255}, i)
         end
         if not SETUP_SEQUENCE then
@@ -321,6 +324,18 @@ function DataToColor:CreateFrames(n)
             MakePixelSquareArr(integerToColor(self:PlayerClass()), 46) -- Returns player class as an integer
             MakePixelSquareArr(integerToColor(self:isUnskinnable()), 47) -- Returns 1 if creature is unskinnable
             MakePixelSquareArr(integerToColor(self:hearthZoneID()), 48) -- Returns subzone of that is currently bound to hearhtstone
+            -- Druid class related data
+            MakePixelSquareArr(integerToColor(self:GetTargetBuffs("Rejuvenation")), 49) -- Returns the status of
+            -- scan part status here
+            -- candidate 1 TargetNearestPartyMember()
+            -- candidate 2 unitID - raidN / partyN
+            MakePixelSquareArr(integerToColor(self:getHealthMax("party1")), 50) -- Return the maximum amount of health a target can have
+            MakePixelSquareArr(integerToColor(self:getHealthCurrent("party1")), 51) -- Returns the current amount of health the target currently has
+
+            --for i = 1, 2-1 do
+            --    MakePixelSquareArr(integerToColor(self:getHealthMax("party"..tostring(i))), 49+i) -- Return the maximum amount of health a target can have
+            --    MakePixelSquareArr(integerToColor(self:getHealthCurrent("party"..tostring(i))), 49+i*2) -- Returns the current amount of health the target currently has
+            --end
             self:HandleEvents()
         end
         if SETUP_SEQUENCE then
@@ -444,6 +459,12 @@ function DataToColor:GetTargetName(partition)
     end
     return 0
 end
+
+function DataToColor:getPartyMember(unit)
+    local is_exist =  GetPartyMember(unit)
+    return is_exist
+end
+
 
 -- Finds maximum amount of health player can have
 function DataToColor:getHealthMax(unit)
@@ -771,6 +792,19 @@ end
 function DataToColor:GetBuffs(buff)
     for i = 1, 10 do
         local b = UnitBuff("player", i);
+        if b ~= nil then
+            if string.find(b, buff) then
+                return 1
+            end
+        end
+    end
+    return 0
+end
+
+-- Iterates through index of buffs to see if we have the buff is passed in
+function DataToColor:GetTargetBuffs(buff)
+    for i = 1, 10 do
+        local b = UnitBuff("target", i);
         if b ~= nil then
             if string.find(b, buff) then
                 return 1
