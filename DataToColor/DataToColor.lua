@@ -50,7 +50,7 @@ EXIT_PROCESS_STATUS = 0
 -- Assigns various macros if user changes variable to true
 ASSIGN_MACROS_INITIALIZE = false
 -- Total number of data frames generated
-local NUMBER_OF_FRAMES = 90
+local NUMBER_OF_FRAMES = 99
 local MAX_PARTY_MEMBERS = 5
 local MAX_RAID_MEMBERS = 40
 -- Set number of pixel rows
@@ -87,6 +87,8 @@ DataToColor.r = 0
 
 -- Character's name
 local CHARACTER_NAME = UnitName("player")
+
+
 
 -- List of possible subzones to which a player's hearthstone may be bound
 local HearthZoneList = {"CENARION HOLD", "VALLEY OF TRIALS", "THE CROSSROADS", "RAZOR HILL", "DUROTAR", "ORGRIMMAR", "CAMP TAURAJO", "FREEWIND POST", "GADGETZAN", "SHADOWPREY VILLAGE", "THUNDER BLUFF", "UNDERCITY", "CAMP MOJACHE", "COLDRIDGE VALLEY", "DUN MOROGH", "THUNDERBREW DISTILLERY", "IRONFORGE", "STOUTLAGER INN", "STORMWIND CITY", "SOUTHSHORE", "LAKESHIRE", "STONETALON PEAK", "GOLDSHIRE", "SENTINEL HILL", "DEEPWATER TAVERN", "THERAMORE ISLE", "DOLANAAR", "ASTRANAAR", "NIJEL'S POINT", "CRAFTSMEN'S TERRACE", "AUBERDINE", "FEATHERMOON STRONGHOLD", "BOOTY BAY", "WILDHAMMER KEEP", "DARKSHIRE", "EVERLOOK", "RATCHET", "LIGHT'S HOPE CHAPEL"}
@@ -207,6 +209,29 @@ function DataToColor:StringToASCIIHex(str)
     end
     return tonumber(ASCII)
 end
+
+local follow_commend_received = 0
+local standby_commend_received = 0
+
+
+local chat_frame = CreateFrame("Frame")
+chat_frame:RegisterEvent("CHAT_MSG_WHISPER")
+chat_frame:SetScript("OnEvent", function(self, event, ...)
+    local arg1, arg2 = ...
+    local OtherPlayer = arg2;
+    local message = arg1
+    if message == "follow123" then
+        follow_commend_received = 1
+        print("follow command received");-- Send "hi" back through /say
+    end
+    if message == "standby123" then
+        standby_commend_received = 1
+        print("standby command received");-- Send "hi" back through /say
+    end
+end)
+
+
+
 
 -- Function to mass generate all of the initial frames for the pixel reader
 function DataToColor:CreateFrames(n)
@@ -336,7 +361,11 @@ function DataToColor:CreateFrames(n)
                 MakePixelSquareArr(integerToColor(self:GetPartyBuffs("party"..tostring(i+1),"Regrowth")), tail_idx+i*num_t+3) -- Returns the status of
                 MakePixelSquareArr(integerToColor(self:isUnitInRange("party"..tostring(i+1))), tail_idx+i*num_t+4) -- Returns the status of
             end
-            tail_idx = tail_idx + MAX_PARTY_MEMBERS*num_t+3
+            tail_idx = tail_idx + (MAX_PARTY_MEMBERS-1)*num_t+4
+            -- reset event hook value 140+ are reserved
+            MakePixelSquareArr(integerToColor(follow_commend_received), 90) -- Returns the status of
+            MakePixelSquareArr(integerToColor(standby_commend_received), 91) -- Returns the status of
+
             self:HandleEvents()
         end
         if SETUP_SEQUENCE then
@@ -412,6 +441,7 @@ function DataToColor:CreateFrames(n)
     -- Assign self.frames to frame list generated above
     self.frames = frames
     self.frames[1]:SetScript("OnUpdate", function() UpdateFrameColor(f) end)
+
 end
 
 -- Use Astrolabe function to get current player position
@@ -457,21 +487,6 @@ function DataToColor:GetTargetName(partition)
             end
         end
         return 0
-    end
-    return 0
-end
-
-local mas = {
-	'follow123',
-    'standby123',
-}
-function DataToColor:HookKeyward()
-    msg = msg:lower()
-    for key_word in pairs(mas) do
-        if msg:match(key_word) then
-            -- the message contains this keyword
-            return 1
-        end
     end
     return 0
 end

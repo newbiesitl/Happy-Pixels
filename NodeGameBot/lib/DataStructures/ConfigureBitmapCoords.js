@@ -15,6 +15,7 @@ exports.configureDataCoords = (metaData, override) => {
     return new Promise((resolve, reject) => {
         // Number of data frames we are going to be reading from. Works if N frames are < 100
         let dataFrames = parseInt(metaData.toString().slice(-2))
+//        let dataFrames = 150 // never tested
         // Number of frame rows
         let frameRows = parseInt(metaData.toString().slice(-5, -3))
         // Size of data frames. Only needs a rough estimation for the bitmap. Resolution and rounding alters dimensions, so there is a multiplier of 2 to correct for potentially missed pixels.

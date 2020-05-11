@@ -60,6 +60,9 @@ let beginDataProcessing = () => {
         party3_max_health, party3_current_health, is_party3_within_40_yard,
         party4_max_health, party4_current_health, is_party4_within_40_yard
 
+    // message commend related
+    let follow_hook, standby_hook
+
 
     let spell = {
         melee: {},
@@ -167,7 +170,9 @@ let beginDataProcessing = () => {
             party1_Regrowth: party1_Regrowth,
             party2_Regrowth: party2_Regrowth,
             party3_Regrowth: party3_Regrowth,
-            party4_Regrowth: party4_Regrowth
+            party4_Regrowth: party4_Regrowth,
+            follow_hook: follow_hook,
+            standby_hook: standby_hook
         }
         // If you don't set a time on your interval, it will run as fast as possible
     })
@@ -351,6 +356,11 @@ let beginDataProcessing = () => {
         party4_Regrowth = reader.getIntAtCell(f[party_index])
         party_index = party_index + 1
         is_party4_within_40_yard = reader.getIntAtCell(f[party_index])
+
+        communication_reserved = 90
+        follow_hook = reader.getIntAtCell(f[communication_reserved])
+        communication_reserved = communication_reserved + 1
+        standby_hook = reader.getIntAtCell(f[communication_reserved])
         // Exits node process if command is triggered
         processExitStatus && ALLOW_PROCESS_EXIT_TRIGGER ? process.exit() : false
     });
