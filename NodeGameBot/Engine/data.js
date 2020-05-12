@@ -533,17 +533,17 @@ const axios = require('axios')
 // Used for testing purposes only. Uncomment to see the console print your values.
  setInterval(() => {
     // send data to monitor dashboard
-    axios
-      .post('http://192.168.1.143/state/', {
-            name: "test",
-            body: JSON.stringify(this.info)
-          })
-      .then(res => {
-        console.log(`statusCode: ${res.status}`)
-      })
-      .catch(error => {
-        console.error(error)
-      })
+//    axios
+//      .post('http://192.168.1.143/state/', {
+//            name: "test",
+//            body: JSON.stringify(this.info)
+//          })
+//      .then(res => {
+//        console.log(`statusCode: ${res.status}`)
+//      })
+//      .catch(error => {
+//        console.error(error)
+//      })
      // send data to controller
      axios
       .post('http://localhost/action/', {

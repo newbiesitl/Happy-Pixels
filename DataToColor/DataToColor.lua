@@ -379,7 +379,8 @@ function DataToColor:CreateFrames(n)
             MakePixelSquareArr(integerToColor(follow_commend_received), 90) -- Returns the status of
             MakePixelSquareArr(integerToColor(standby_commend_received), 91) -- Returns the status of
             MakePixelSquareArr(integerToColor(guard_commend_received), 92) -- Returns the status of
-            MakePixelSquareArr(integerToColor((not IsMounted())*(not IsIndoors())), 93) -- Returns the status of
+            --MakePixelSquareArr(integerToColor((not IsMounted()) and (not IsIndoors())), 93) -- Returns the status of
+            MakePixelSquareArr(integerToColor(self.Mountable()), 93) -- Returns the status of
 
             self:HandleEvents()
         end
@@ -1170,3 +1171,13 @@ function DataToColor:ResurrectPlayer()
     end
 end
 
+
+function DataToColor:Mountable()
+    is_outdoor = IsOutdoors()
+    is_mounted = IsMounted()
+    --print("outdoor", is_outdoor, "is mounted", is_mounted)
+    if is_outdoor and (not is_mounted) then
+        return 1
+    end
+    return 0
+end
