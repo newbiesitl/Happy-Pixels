@@ -62,7 +62,10 @@ let beginDataProcessing = () => {
         party4_max_health, party4_current_health, is_party4_within_40_yard
 
     // message commend related
-    let follow_hook, standby_hook
+    let follow_hook, standby_hook, guard_hook
+    // movement related
+    let mountable
+    // druid battle related
 
 
     let spell = {
@@ -175,7 +178,9 @@ let beginDataProcessing = () => {
             player_RejuvenationActive: player_RejuvenationActive,
             player_Regrowth: player_Regrowth,
             follow_hook: follow_hook,
-            standby_hook: standby_hook
+            standby_hook: standby_hook,
+            guard_hook: guard_hook,
+            mountable: mountable
         }
         // If you don't set a time on your interval, it will run as fast as possible
     })
@@ -366,6 +371,11 @@ let beginDataProcessing = () => {
         follow_hook = reader.getIntAtCell(f[communication_reserved])
         communication_reserved = communication_reserved + 1
         standby_hook = reader.getIntAtCell(f[communication_reserved])
+        communication_reserved = communication_reserved + 1
+        guard_hook = reader.getIntAtCell(f[communication_reserved])
+        communication_reserved = communication_reserved + 1
+        mountable = reader.getIntAtCell(f[communication_reserved])
+
         // Exits node process if command is triggered
         processExitStatus && ALLOW_PROCESS_EXIT_TRIGGER ? process.exit() : false
     });

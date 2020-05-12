@@ -212,6 +212,7 @@ end
 
 local follow_commend_received = 0
 local standby_commend_received = 0
+local guard_commend_received = 0
 
 
 local chat_frame = CreateFrame("Frame")
@@ -223,12 +224,20 @@ chat_frame:SetScript("OnEvent", function(self, event, ...)
     if message == "follow123" then
         follow_commend_received = 1
         standby_commend_received = 0
+        guard_commend_received =0
         print("follow command received");-- Send "hi" back through /say
     end
     if message == "standby123" then
         follow_commend_received = 0
         standby_commend_received = 1
+        guard_commend_received =0
         print("standby command received");-- Send "hi" back through /say
+    end
+    if message == 'guard123' then
+        follow_commend_received = 0
+        standby_commend_received = 0
+        guard_commend_received = 1
+        print("guard command received");-- Send "hi" back through /say
     end
 end)
 
@@ -369,6 +378,8 @@ function DataToColor:CreateFrames(n)
             -- reset event hook value 140+ are reserved
             MakePixelSquareArr(integerToColor(follow_commend_received), 90) -- Returns the status of
             MakePixelSquareArr(integerToColor(standby_commend_received), 91) -- Returns the status of
+            MakePixelSquareArr(integerToColor(guard_commend_received), 92) -- Returns the status of
+            MakePixelSquareArr(integerToColor((not IsMounted())*(not IsIndoors())), 93) -- Returns the status of
 
             self:HandleEvents()
         end
