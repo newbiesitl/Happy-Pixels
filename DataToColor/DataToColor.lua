@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------
 --  DataToColor - display player position as color
 ----------------------------------------------------------------------------
-
+seterrorhandler(print);
 DataToColor = {}
 DataToColor = LibStub("AceAddon-3.0"):NewAddon("AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0")
 
@@ -14,8 +14,8 @@ DATA_CONFIG = {
     REZ = true,
     HIDE_SHAPESHIFT_BAR = true,
     AUTO_REPAIR_ITEMS = true, -- O
-    AUTO_LEARN_TALENTS = true, -- O
-    AUTO_TRAIN_SPELLS = true, -- O
+    AUTO_LEARN_TALENTS = false, -- O
+    AUTO_TRAIN_SPELLS = false, -- O
     AUTO_RESURRECT = true,
     SELL_WHITE_ITEMS = true
 }
@@ -213,7 +213,7 @@ end
 local follow_commend_received = 0
 local standby_commend_received = 0
 local guard_commend_received = 0
-
+local assist_commend_received = 0
 
 local chat_frame = CreateFrame("Frame")
 chat_frame:RegisterEvent("CHAT_MSG_WHISPER")
@@ -239,9 +239,34 @@ chat_frame:SetScript("OnEvent", function(self, event, ...)
         guard_commend_received = 1
         print("guard command received");-- Send "hi" back through /say
     end
-end)
+    if message == 'toggle assist' then
+        assist_commend_received = not assist_commend_received
+        print("assist mode", assist_commend_received);-- Send "hi" back through /say
+        if assist_commend_received then
+            print("encoded state: ")
+            print(DataToColor:DruidAssistOptionUpdate())
+        end
+    end
+    end)
 
 
+function DataToColor:DruidAssistOptionUpdate()
+    local encoded_state = 0
+    name, realm = UnitName("party1target")
+    if name == nul then
+        return encoded_state
+    end
+    for i,v in ipairs({"Entangling Roots", "Faerie Fire", "Moonfire", "Insect Swarm"}) do
+        name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId =
+        UnitDebuff("party1target", name);
+        if name == v and duration == nil then
+            encoded_state = encoded_state + 10^i
+        else
+            encoded_state = encoded_state + 2 * 10^i
+        end
+        end
+    return encoded_state
+end
 
 
 -- Function to mass generate all of the initial frames for the pixel reader
@@ -379,6 +404,7 @@ function DataToColor:CreateFrames(n)
             MakePixelSquareArr(integerToColor(follow_commend_received), 90) -- Returns the status of
             MakePixelSquareArr(integerToColor(standby_commend_received), 91) -- Returns the status of
             MakePixelSquareArr(integerToColor(guard_commend_received), 92) -- Returns the status of
+            MakePixelSquareArr(integerToColor(integer(assist_commend_received)), 94) -- Returns the status of
             --MakePixelSquareArr(integerToColor((not IsMounted()) and (not IsIndoors())), 93) -- Returns the status of
             MakePixelSquareArr(integerToColor(self.Mountable()), 93) -- Returns the status of
 
