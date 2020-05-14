@@ -377,7 +377,7 @@ let beginDataProcessing = () => {
         communication_reserved = communication_reserved + 1
         mountable = reader.getIntAtCell(f[communication_reserved]) // 93
         communication_reserved = communication_reserved + 1
-        assist_hook = = reader.getIntAtCell(f[communication_reserved]) // 94
+        assist_hook = reader.getIntAtCell(f[communication_reserved]) // 94
         // Exits node process if command is triggered
         processExitStatus && ALLOW_PROCESS_EXIT_TRIGGER ? process.exit() : false
     });

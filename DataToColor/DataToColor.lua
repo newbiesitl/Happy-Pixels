@@ -123,6 +123,11 @@ function Modulo(val, by)
     return val - math.floor(val / by) * by
 end
 
+function bool_to_number(value)
+  return value and 1 or 0
+end
+
+
 -- Check if two tables are identical
 function ValuesAreEqual(t1, t2, ignore_mt)
     local ty1 = type(t1)
@@ -245,6 +250,8 @@ chat_frame:SetScript("OnEvent", function(self, event, ...)
         if assist_commend_received then
             print("encoded state: ")
             print(DataToColor:DruidAssistOptionUpdate())
+        else
+            print('encoded state 0')
         end
     end
     end)
@@ -252,19 +259,50 @@ chat_frame:SetScript("OnEvent", function(self, event, ...)
 
 function DataToColor:DruidAssistOptionUpdate()
     local encoded_state = 0
-    name, realm = UnitName("party1target")
+    local has_er, has_ff, has_mf, has_iw = false, false, false, false
+    name, realm = UnitName("targettarget")
     if name == nul then
         return encoded_state
     end
-    for i,v in ipairs({"Entangling Roots", "Faerie Fire", "Moonfire", "Insect Swarm"}) do
-        name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId =
-        UnitDebuff("party1target", name);
-        if name == v and duration == nil then
-            encoded_state = encoded_state + 10^i
-        else
-            encoded_state = encoded_state + 2 * 10^i
+    if not UnitIsEnemy("player","playertargettarget") then
+        return encoded_state
+    end
+    if not DataToColor:isUnitInRange("playertargettarget") then
+        return encoded_state
+    end
+    for i=1,40 do
+        debuff_name, rank, icon, count, debuffType, duration, expirationTime, unitCaster, isStealable, shouldConsolidate, spellId = UnitDebuff("playertargettarget", i);
+        if debuff_name ~= nil then
+            if debuff_name == "Entangling Roots" then
+                has_er = true
+            end
+            if debuff_name == 'Faerie Fire' then
+                has_ff = true
+            end
+            if debuff_name == 'Moonfire' then
+                has_mf = true
+            end
+            if debuff_name == "insect Swarm" then
+                has_iw = true
+            end
         end
+
+
+    end
+    if DataToColor:isUnitInRange("playertargettarget") and UnitIsEnemy("player","playertargettarget") then
+        if not has_er  then
+            encoded_state = encoded_state + 10^0
         end
+        if not has_ff then
+            encoded_state = encoded_state + 10^1
+        end
+        if not has_mf then
+            encoded_state = encoded_state + 10^2
+        end
+        if not has_iw then
+            encoded_state = encoded_state + 10^3
+        end
+    end
     return encoded_state
 end
 
@@ -404,7 +442,7 @@ function DataToColor:CreateFrames(n)
             MakePixelSquareArr(integerToColor(follow_commend_received), 90) -- Returns the status of
             MakePixelSquareArr(integerToColor(standby_commend_received), 91) -- Returns the status of
             MakePixelSquareArr(integerToColor(guard_commend_received), 92) -- Returns the status of
-            MakePixelSquareArr(integerToColor(integer(assist_commend_received)), 94) -- Returns the status of
+            MakePixelSquareArr(integerToColor(bool_to_number(assist_commend_received)), 94) -- Returns the status of
             --MakePixelSquareArr(integerToColor((not IsMounted()) and (not IsIndoors())), 93) -- Returns the status of
             MakePixelSquareArr(integerToColor(self.Mountable()), 93) -- Returns the status of
 
