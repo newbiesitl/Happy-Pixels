@@ -128,6 +128,36 @@ function bool_to_number(value)
 end
 
 
+local lowest_health_target = ""
+
+function TargetLowestPartyMember()
+    local lowest_health_percentage = 100
+    for i=1,40 do
+        target_id = 'raid'..tostring(i)
+        if UnitExists(target_id) then
+            if DataToColor:isUnitInRange(target_id) and not UnitIsGhost(target_id) then
+                cur = DataToColor:getHealthCurrent(target_id)
+                if cur < lowest_health_percentage then
+                    lowest_health_percentage= cur
+                    lowest_health_target = target_id
+                end
+            end
+        end
+    end
+    for i=1,5 do
+        target_id = 'party'..tostring(i)
+        if UnitExists(target_id) then
+            if DataToColor:isUnitInRange(target_id) and not UnitIsGhost(target_id) then
+                cur = DataToColor:getHealthCurrent(target_id)
+                if cur < lowest_health_percentage then
+                    lowest_health_percentage= cur
+                    lowest_health_target = target_id
+                end
+            end
+        end
+    end
+end
+
 -- Check if two tables are identical
 function ValuesAreEqual(t1, t2, ignore_mt)
     local ty1 = type(t1)
@@ -219,6 +249,9 @@ local follow_commend_received = 0
 local standby_commend_received = 0
 local guard_commend_received = 0
 local assist_commend_received = 0
+local auto_target = 0
+
+
 
 local chat_frame = CreateFrame("Frame")
 chat_frame:RegisterEvent("CHAT_MSG_WHISPER")
@@ -254,7 +287,47 @@ chat_frame:SetScript("OnEvent", function(self, event, ...)
             print('encoded state 0')
         end
     end
+    if message == 'toggle auto target' then
+        auto_target = not auto_target
+        print('auto target', auto_target)
+    end
     end)
+
+
+local bg_status = "none"
+local any_active = false
+
+
+local bg_frame = CreateFrame("Frame")
+bg_frame:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
+bg_frame:SetScript("OnEvent", function(self, event, ...)
+    any_active = false
+    for i = 1, 3 do
+        status, mapName, instanceID = GetBattlefieldStatus(i)
+        if status == "confirm" then
+            print('battle field ready', status, mapName, instanceID)
+        end
+        if status == 'active' then
+            any_active = true
+        end
+        bg_status = status
+    end
+end)
+
+
+-- Use Astrolabe function to get current player position
+function DataToColor:GetCurrentPlayerPosition()
+    local map = C_Map.GetBestMapForUnit("player")
+    if map ~= nil then
+        local position = C_Map.GetPlayerMapPosition(map, "player")
+        -- Resets map to correct zone ... removed in 8.0.1, needs to be tested to see if zone auto update
+        -- SetMapToCurrentZone()
+        return position:GetXY()
+    else
+
+        return 0,0
+    end
+end
 
 
 function DataToColor:DruidAssistOptionUpdate()
@@ -284,8 +357,7 @@ function DataToColor:DruidAssistOptionUpdate()
             end
             if debuff_name == "insect Swarm" then
                 has_iw = true
-            end
-        end
+            end end
 
 
     end
@@ -312,7 +384,12 @@ function DataToColor:CreateFrames(n)
     -- Note: Use single frame and update color on game update call
     local function UpdateFrameColor(f)
         -- set the frame color to random values
-        xCoordi, yCoordi = self:GetCurrentPlayerPosition()
+        if not any_active then
+            xCoordi, yCoordi = self:GetCurrentPlayerPosition()
+        else
+            xCoordi = 0
+            yCoordi = 0
+        end
         if xCoordi == nil or yCoordi == nil then
             xCoordi = 0
             yCoordi = 0
@@ -340,9 +417,24 @@ function DataToColor:CreateFrames(n)
             -- The final data square, reserved for additional metadata.
             MakePixelSquareArr(integerToColor(2000001), NUMBER_OF_FRAMES - 1)
             -- Position related variables --
-            MakePixelSquareArr(fixedDecimalToColor(xCoordi), 1) --1 The x-coordinate
-            MakePixelSquareArr(fixedDecimalToColor(yCoordi), 2) --2 The y-coordinate
-            MakePixelSquareArr(fixedDecimalToColor(DataToColor:GetPlayerFacing()), 3) --3 The direction the player is facing in radians
+            if C_Map.GetBestMapForUnit("player") ~= nil then
+                MakePixelSquareArr(fixedDecimalToColor(xCoordi), 1) --1 The x-coordinate
+                MakePixelSquareArr(fixedDecimalToColor(yCoordi), 2) --2 The y-coordinate
+                if not any_active  then
+                    MakePixelSquareArr(fixedDecimalToColor(DataToColor:GetPlayerFacing()), 3) --3 The direction the player is facing in radians
+                else
+                    MakePixelSquareArr(fixedDecimalToColor(0), 3) --3 The direction the player is facing in radians
+                end
+            else
+                MakePixelSquareArr(fixedDecimalToColor(0), 1) --1 The x-coordinate
+                MakePixelSquareArr(fixedDecimalToColor(0), 2) --2 The y-coordinate
+                if not any_active  then
+                    MakePixelSquareArr(fixedDecimalToColor(0), 3) --3 The direction the player is facing in radians
+                else
+                    MakePixelSquareArr(fixedDecimalToColor(0), 3) --3 The direction the player is facing in radians
+                end
+            end
+
             MakePixelSquareArr(integerToColor(self:GetZoneName(0)), 4) -- Get name of first 3 characters of zone
             MakePixelSquareArr(integerToColor(self:GetZoneName(3)), 5) -- Get name of last 3 characters of zone
             MakePixelSquareArr(fixedDecimalToColor(self:CorpsePosition("x") * 10), 6) -- Returns the x coordinates of corpse
@@ -445,7 +537,9 @@ function DataToColor:CreateFrames(n)
             MakePixelSquareArr(integerToColor(bool_to_number(assist_commend_received)), 94) -- Returns the status of
             --MakePixelSquareArr(integerToColor((not IsMounted()) and (not IsIndoors())), 93) -- Returns the status of
             MakePixelSquareArr(integerToColor(self.Mountable()), 93) -- Returns the status of
-
+            if auto_target then
+                TargetLowestPartyMember()
+            end
             self:HandleEvents()
         end
         if SETUP_SEQUENCE then
@@ -524,14 +618,7 @@ function DataToColor:CreateFrames(n)
 
 end
 
--- Use Astrolabe function to get current player position
-function DataToColor:GetCurrentPlayerPosition()
-    local map = C_Map.GetBestMapForUnit("player")
-    local position = C_Map.GetPlayerMapPosition(map, "player")
-    -- Resets map to correct zone ... removed in 8.0.1, needs to be tested to see if zone auto update
-    -- SetMapToCurrentZone()
-    return position:GetXY()
-end
+
 
 -- Base 2 converter for up to 24 boolean values to a single pixel square.
 function DataToColor:Base2Converter()
@@ -822,8 +909,10 @@ function DataToColor:CorpsePosition(coord)
     local cY
     if UnitIsGhost("player") then
         local map = C_Map.GetBestMapForUnit("player")
-        if C_DeathInfo.GetCorpseMapPosition(map) ~= nil then
-            cX, cY = C_DeathInfo.GetCorpseMapPosition(map):GetXY()
+        if map ~= nil then
+            if C_DeathInfo.GetCorpseMapPosition(map) ~= nil then
+                cX, cY = C_DeathInfo.GetCorpseMapPosition(map):GetXY()
+            end
         end
     end
     if coord == "x" then
